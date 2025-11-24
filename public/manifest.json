@@ -1,0 +1,16 @@
+{
+  "name": "Timer HIIT",
+  "short_name": "TimerHIIT",
+  "description": "Chronomètres, comptes à rebours et sessions HIIT en PWA.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#0f172a",
+  "background_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ]
+}
