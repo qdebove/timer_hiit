@@ -41,7 +41,7 @@ export default function HomePage() {
           </div>
           {timers.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-6 text-sm text-slate-600 shadow-inner dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-300">
-              Aucun timer créé pour l'instant. Ajoutez un compte à rebours ou un chrono pour démarrer.
+              Aucun timer créé pour l&apos;instant. Ajoutez un compte à rebours ou un chrono pour démarrer.
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
