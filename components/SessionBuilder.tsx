@@ -132,7 +132,7 @@ export const SessionBuilder = ({ sessions, onCreate, onRemove, onDuplicate }: Pr
 
       <div className="space-y-2">
         {segments.length === 0 ? (
-          <p className="text-sm text-slate-500 dark:text-slate-400">Aucun segment ajouté pour l'instant.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Aucun segment ajouté pour l&apos;instant.</p>
         ) : (
           <ul className="space-y-2">
             {segments.map((segment) => (
