@@ -67,11 +67,12 @@ export const useTimerManager = () => {
 
   const addTimer = (input: TimerInput) => {
     const now = Date.now();
+    const id = createId();
     setTimers((prev) => [
       ...prev,
       {
         ...input,
-        id: createId(),
+        id,
         elapsedMs: 0,
         remainingMs: input.kind === 'countdown' ? input.durationMs : input.durationMs,
         isRunning: false,
@@ -79,6 +80,8 @@ export const useTimerManager = () => {
         updatedAt: now
       }
     ]);
+
+    return id;
   };
 
   const updateTimer = (id: string, updater: (timer: TimerConfig) => TimerConfig) => {
