@@ -2,21 +2,24 @@
 
 import { useState } from 'react';
 import { createId, formatDuration, parseDurationToMs } from '@/lib/utils';
-import type { SessionSegment, TimerSession } from '@/types/timer';
+import type { SessionSegment, TimerConfig, TimerSession } from '@/types/timer';
 
 interface Props {
   sessions: TimerSession[];
+  timers: TimerConfig[];
   onCreate: (session: { name: string; segments: SessionSegment[]; delayBetweenMs?: number; autoStartNext: boolean }) => void;
   onRemove: (id: string) => void;
   onDuplicate: (id: string) => void;
 }
 
-export const SessionBuilder = ({ sessions, onCreate, onRemove, onDuplicate }: Props) => {
+export const SessionBuilder = ({ sessions, timers, onCreate, onRemove, onDuplicate }: Props) => {
   const [name, setName] = useState('Session HIIT');
   const [segments, setSegments] = useState<SessionSegment[]>([]);
   const [autoStartNext, setAutoStartNext] = useState(true);
   const [delayBetween, setDelayBetween] = useState(5);
   const [segmentForm, setSegmentForm] = useState({ label: 'Sprint', minutes: 0, seconds: 20, repetitions: 1 });
+
+  const availableCountdowns = timers.filter((timer) => timer.kind === 'countdown');
 
   const addSegment = () => {
     const durationMs = parseDurationToMs(segmentForm.minutes, segmentForm.seconds);
@@ -30,6 +33,20 @@ export const SessionBuilder = ({ sessions, onCreate, onRemove, onDuplicate }: Pr
     };
     setSegments((prev) => [...prev, newSegment]);
   };
+
+  const addFromTimer = (timer: TimerConfig) => {
+    const newSegment: SessionSegment = {
+      id: createId(),
+      label: timer.name,
+      durationMs: timer.durationMs,
+      repetitions: 1,
+      color: timer.color,
+      restMs: delayBetween * 1000
+    };
+    setSegments((prev) => [...prev, newSegment]);
+  };
+
+  const removeSegment = (id: string) => setSegments((prev) => prev.filter((segment) => segment.id !== id));
 
   const handleCreateSession = () => {
     onCreate({ name, segments, delayBetweenMs: delayBetween * 1000, autoStartNext });
@@ -67,6 +84,38 @@ export const SessionBuilder = ({ sessions, onCreate, onRemove, onDuplicate }: Pr
             className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-primary-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
           />
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 rounded-xl border border-dashed border-primary-200 bg-primary-50/60 p-3 dark:border-primary-900/60 dark:bg-primary-500/5">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-primary-700 dark:text-primary-200">Bibliothèque</p>
+            <h4 className="text-base font-bold text-slate-900 dark:text-slate-50">Ajoutez vos compte à rebours existants</h4>
+          </div>
+          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">{availableCountdowns.length} disponibles</span>
+        </div>
+        {availableCountdowns.length === 0 ? (
+          <p className="text-sm text-slate-600 dark:text-slate-300">
+            Créez d&apos;abord un compte à rebours pour pouvoir l&apos;enchaîner dans une session.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {availableCountdowns.map((timer) => (
+              <button
+                key={timer.id}
+                type="button"
+                onClick={() => addFromTimer(timer)}
+                className="flex items-center justify-between rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-100"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="inline-block h-2 w-2 rounded-full" style={{ background: timer.color }} />
+                  {timer.name}
+                </span>
+                <span className="text-xs uppercase tracking-wide text-primary-600 dark:text-primary-300">Ajouter</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-3 rounded-xl border border-dashed border-slate-200 p-3 dark:border-slate-800">
@@ -146,7 +195,16 @@ export const SessionBuilder = ({ sessions, onCreate, onRemove, onDuplicate }: Pr
                     {formatDuration(segment.durationMs)} • {segment.repetitions}x
                   </span>
                 </div>
-                <span className="text-xs text-slate-500 dark:text-slate-400">Repos {delayBetween}s</span>
+                <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                  <span>Repos {delayBetween}s</span>
+                  <button
+                    type="button"
+                    onClick={() => removeSegment(segment.id)}
+                    className="rounded-full border border-slate-200 px-3 py-1 font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-800"
+                  >
+                    Retirer
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
