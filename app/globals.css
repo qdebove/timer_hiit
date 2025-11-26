@@ -14,6 +14,12 @@ body {
   @apply bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100;
 }
 
+@layer base {
+  button {
+    @apply whitespace-normal break-words leading-tight transition duration-150 ease-out;
+  }
+}
+
 .shadow-card {
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.2);
 }
