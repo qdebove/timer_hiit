@@ -5,11 +5,12 @@ import { TimerCard } from '@/components/TimerCard';
 import { TimerForm } from '@/components/TimerForm';
 import { FloatingTimerAction } from '@/components/FloatingTimerAction';
 import { SessionBuilder } from '@/components/SessionBuilder';
+import { SessionRunner } from '@/components/SessionRunner';
 import { useSessionManager } from '@/hooks/useSessionManager';
 import { useTimerManager } from '@/hooks/useTimerManager';
 
 export default function HomePage() {
-  const { timers, addTimer, start, pause, reset, removeTimer, duplicate } = useTimerManager();
+  const { timers, addTimer, start, pause, reset, removeTimer, duplicate, edit } = useTimerManager();
   const { sessions, createSession, removeSession, duplicate: duplicateSession } = useSessionManager();
 
   return (
@@ -66,6 +67,7 @@ export default function HomePage() {
                     onReset={reset}
                     onRemove={removeTimer}
                     onDuplicate={duplicate}
+                    onUpdate={edit}
                   />
                 ))}
               </div>
@@ -80,6 +82,10 @@ export default function HomePage() {
               onRemove={removeSession}
               onDuplicate={duplicateSession}
             />
+          </section>
+
+          <section>
+            <SessionRunner sessions={sessions} />
           </section>
         </div>
       </div>
