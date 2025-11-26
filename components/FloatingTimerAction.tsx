@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { parseDurationToMs } from '@/lib/utils';
 import type { TimerConfig, TimerKind } from '@/types/timer';
 
@@ -16,6 +16,13 @@ export const FloatingTimerAction = ({ timers, onCreateTimer, onStartTimer }: Pro
   const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(30);
   const [kind, setKind] = useState<TimerKind>('countdown');
+
+  useEffect(() => {
+    if (kind === 'stopwatch') {
+      setMinutes(0);
+      setSeconds(0);
+    }
+  }, [kind]);
 
   const favoriteCountdowns = useMemo(
     () => timers.filter((timer) => timer.kind === 'countdown').slice(0, 3),
@@ -70,8 +77,9 @@ export const FloatingTimerAction = ({ timers, onCreateTimer, onStartTimer }: Pro
                   type="number"
                   min={0}
                   value={minutes}
+                  disabled={kind === 'stopwatch'}
                   onChange={(e) => setMinutes(parseInt(e.target.value, 10) || 0)}
-                  className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-sm font-medium text-slate-800 shadow-sm focus:border-primary-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                  className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-sm font-medium text-slate-800 shadow-sm focus:border-primary-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:disabled:bg-slate-800"
                 />
               </div>
               <div>
@@ -82,8 +90,9 @@ export const FloatingTimerAction = ({ timers, onCreateTimer, onStartTimer }: Pro
                   type="number"
                   min={0}
                   value={seconds}
+                  disabled={kind === 'stopwatch'}
                   onChange={(e) => setSeconds(parseInt(e.target.value, 10) || 0)}
-                  className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-sm font-medium text-slate-800 shadow-sm focus:border-primary-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                  className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-sm font-medium text-slate-800 shadow-sm focus:border-primary-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:disabled:bg-slate-800"
                 />
               </div>
               <div>

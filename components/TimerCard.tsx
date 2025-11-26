@@ -12,10 +12,12 @@ interface Props {
   onRemove: (id: string) => void;
   onDuplicate: (id: string) => void;
   onUpdate: (id: string, payload: { name: string; durationMs: number; color: string; kind: TimerKind }) => void;
+  onLap: (id: string) => void;
 }
 
-export const TimerCard = ({ timer, onStart, onPause, onReset, onRemove, onDuplicate, onUpdate }: Props) => {
-  const progress = Math.min(100, (timer.elapsedMs / timer.durationMs) * 100 || 0);
+export const TimerCard = ({ timer, onStart, onPause, onReset, onRemove, onDuplicate, onUpdate, onLap }: Props) => {
+  const hasTarget = timer.kind === 'countdown' || timer.durationMs > 0;
+  const progress = hasTarget ? Math.min(100, (timer.elapsedMs / (timer.durationMs || 1)) * 100 || 0) : 0;
   const displayTime = timer.kind === 'countdown' ? formatDuration(timer.remainingMs) : formatDuration(timer.elapsedMs);
   const [showAdmin, setShowAdmin] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -24,6 +26,13 @@ export const TimerCard = ({ timer, onStart, onPause, onReset, onRemove, onDuplic
   const [minutes, setMinutes] = useState(() => Math.floor(timer.durationMs / 60000));
   const [seconds, setSeconds] = useState(() => Math.floor((timer.durationMs % 60000) / 1000));
   const [color, setColor] = useState(timer.color);
+
+  useEffect(() => {
+    if (kind === 'stopwatch') {
+      setMinutes(0);
+      setSeconds(0);
+    }
+  }, [kind]);
 
   useEffect(() => {
     setName(timer.name);
@@ -84,12 +93,28 @@ export const TimerCard = ({ timer, onStart, onPause, onReset, onRemove, onDuplic
           >
             Reset
           </button>
+          {timer.kind === 'stopwatch' && (
+            <button
+              type="button"
+              onClick={() => onLap(timer.id)}
+              className="rounded-full bg-white/10 px-3 py-2 font-semibold shadow-inner transition hover:bg-white/20"
+            >
+              Étape
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-        <div className="h-full bg-gradient-to-r from-primary-500 to-primary-700" style={{ width: `${progress}%` }} />
-      </div>
+      {hasTarget ? (
+        <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+          <div className="h-full bg-gradient-to-r from-primary-500 to-primary-700" style={{ width: `${progress}%` }} />
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-500">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+          Chrono libre en cours
+        </div>
+      )}
 
       <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
         <span>{timer.isRunning ? 'Lecture en cours' : 'Prêt à démarrer'}</span>
@@ -128,6 +153,23 @@ export const TimerCard = ({ timer, onStart, onPause, onReset, onRemove, onDuplic
               {editMode ? 'Fermer' : 'Éditer'}
             </button>
           </div>
+
+          {timer.kind === 'stopwatch' && timer.laps.length > 0 && (
+            <div className="rounded-lg bg-white/70 p-3 text-xs shadow-inner dark:bg-slate-900/60">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Étapes</p>
+              <ul className="mt-1 space-y-1">
+                {timer.laps.map((lap) => (
+                  <li
+                    key={lap.id}
+                    className="flex items-center justify-between rounded-md bg-slate-100/70 px-2 py-1 font-mono text-[12px] font-semibold text-slate-700 dark:bg-slate-800/60 dark:text-slate-100"
+                  >
+                    <span>{lap.label}</span>
+                    <span>{formatDuration(lap.elapsedMs)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {editMode && (
             <div className="space-y-2 rounded-lg bg-slate-50/80 p-3 text-xs dark:bg-slate-800/60">

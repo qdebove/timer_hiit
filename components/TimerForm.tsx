@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { parseDurationToMs } from '@/lib/utils';
 import type { TimerKind } from '@/types/timer';
 
@@ -14,6 +14,13 @@ export const TimerForm = ({ onCreate }: Props) => {
   const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(30);
   const [color, setColor] = useState('#6366f1');
+
+  useEffect(() => {
+    if (kind === 'stopwatch') {
+      setMinutes(0);
+      setSeconds(0);
+    }
+  }, [kind]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -44,8 +51,9 @@ export const TimerForm = ({ onCreate }: Props) => {
             type="number"
             min={0}
             value={minutes}
+            disabled={kind === 'stopwatch'}
             onChange={(e) => setMinutes(parseInt(e.target.value, 10) || 0)}
-            className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus:border-primary-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+            className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus:border-primary-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:disabled:bg-slate-800"
           />
         </div>
         <div>
@@ -56,8 +64,9 @@ export const TimerForm = ({ onCreate }: Props) => {
             type="number"
             min={0}
             value={seconds}
+            disabled={kind === 'stopwatch'}
             onChange={(e) => setSeconds(parseInt(e.target.value, 10) || 0)}
-            className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus:border-primary-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+            className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus:border-primary-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:disabled:bg-slate-800"
           />
         </div>
         <div>
@@ -82,12 +91,19 @@ export const TimerForm = ({ onCreate }: Props) => {
         </div>
       </div>
 
-      <button
-        type="submit"
-        className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-primary-500 to-primary-700 px-4 py-2 text-sm font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-lg"
-      >
-        Ajouter un timer
-      </button>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          {kind === 'stopwatch'
+            ? 'Le chronomètre est sans limite, ajoutez des étapes pendant la course.'
+            : 'Le compte à rebours se base sur la durée indiquée.'}
+        </p>
+        <button
+          type="submit"
+          className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-primary-500 to-primary-700 px-4 py-2 text-sm font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-lg"
+        >
+          Ajouter un timer
+        </button>
+      </div>
     </form>
   );
 };

@@ -1,5 +1,12 @@
 export type TimerKind = 'stopwatch' | 'countdown';
 
+export interface TimerLap {
+  id: string;
+  label: string;
+  elapsedMs: number;
+  createdAt: number;
+}
+
 export interface TimerConfig {
   id: string;
   name: string;
@@ -12,6 +19,7 @@ export interface TimerConfig {
   elapsedMs: number;
   remainingMs: number;
   lastStartedAt?: number;
+  laps: TimerLap[];
   createdAt: number;
   updatedAt: number;
 }
