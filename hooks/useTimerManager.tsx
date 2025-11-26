@@ -162,6 +162,30 @@ export const useTimerManager = () => {
     });
   };
 
+  const updateLapLabel = (timerId: string, lapId: string, label: string) => {
+    const now = Date.now();
+    updateTimer(timerId, (timer) => {
+      if (timer.kind !== 'stopwatch') return timer;
+      return {
+        ...timer,
+        laps: (timer.laps ?? []).map((lap) => (lap.id === lapId ? { ...lap, label } : lap)),
+        updatedAt: now
+      };
+    });
+  };
+
+  const removeLap = (timerId: string, lapId: string) => {
+    const now = Date.now();
+    updateTimer(timerId, (timer) => {
+      if (timer.kind !== 'stopwatch') return timer;
+      return {
+        ...timer,
+        laps: (timer.laps ?? []).filter((lap) => lap.id !== lapId),
+        updatedAt: now
+      };
+    });
+  };
+
   const duplicate = (id: string) => {
     const timer = timers.find((item) => item.id === id);
     if (!timer) return;
@@ -200,6 +224,8 @@ export const useTimerManager = () => {
     pause,
     reset,
     addLap,
+    updateLapLabel,
+    removeLap,
     duplicate,
     edit
   } as const;

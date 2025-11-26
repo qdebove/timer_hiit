@@ -12,10 +12,23 @@ interface Props {
   onRemove: (id: string) => void;
   onDuplicate: (id: string) => void;
   onUpdate: (id: string, payload: { name: string; durationMs: number; color: string; kind: TimerKind }) => void;
-  onLap: (id: string) => void;
+  onLap: (id: string, label?: string) => void;
+  onLapLabelChange: (timerId: string, lapId: string, label: string) => void;
+  onLapRemove: (timerId: string, lapId: string) => void;
 }
 
-export const TimerCard = ({ timer, onStart, onPause, onReset, onRemove, onDuplicate, onUpdate, onLap }: Props) => {
+export const TimerCard = ({
+  timer,
+  onStart,
+  onPause,
+  onReset,
+  onRemove,
+  onDuplicate,
+  onUpdate,
+  onLap,
+  onLapLabelChange,
+  onLapRemove
+}: Props) => {
   const hasTarget = timer.kind === 'countdown' || timer.durationMs > 0;
   const progress = hasTarget ? Math.min(100, (timer.elapsedMs / (timer.durationMs || 1)) * 100 || 0) : 0;
   const displayTime = timer.kind === 'countdown' ? formatDuration(timer.remainingMs) : formatDuration(timer.elapsedMs);
@@ -27,6 +40,7 @@ export const TimerCard = ({ timer, onStart, onPause, onReset, onRemove, onDuplic
   const [minutes, setMinutes] = useState(() => Math.floor(timer.durationMs / 60000));
   const [seconds, setSeconds] = useState(() => Math.floor((timer.durationMs % 60000) / 1000));
   const [color, setColor] = useState(timer.color);
+  const [customLapLabel, setCustomLapLabel] = useState('');
 
   useEffect(() => {
     if (kind === 'stopwatch') {
@@ -49,6 +63,12 @@ export const TimerCard = ({ timer, onStart, onPause, onReset, onRemove, onDuplic
     const durationMs = parseDurationToMs(minutes, seconds);
     onUpdate(timer.id, { name, durationMs, color, kind });
     setEditMode(false);
+  };
+
+  const handleCustomLap = () => {
+    const label = customLapLabel.trim();
+    onLap(timer.id, label.length > 0 ? label : undefined);
+    setCustomLapLabel('');
   };
 
   const canEdit = useMemo(() => !timer.isRunning, [timer.isRunning]);
@@ -129,7 +149,7 @@ export const TimerCard = ({ timer, onStart, onPause, onReset, onRemove, onDuplic
       </div>
 
       {showAdmin && (
-        <div className="space-y-3 rounded-xl border border-dashed border-slate-200 p-3 text-sm font-medium text-slate-600 dark:border-slate-700 dark:text-slate-300">
+        <div className="space-y-4 rounded-xl border border-dashed border-slate-200 p-3 text-sm font-medium text-slate-600 dark:border-slate-700 dark:text-slate-300">
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -157,26 +177,44 @@ export const TimerCard = ({ timer, onStart, onPause, onReset, onRemove, onDuplic
 
           {timer.kind === 'stopwatch' && laps.length > 0 && (
             <div className="rounded-lg bg-white/70 p-3 text-xs shadow-inner dark:bg-slate-900/60">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Étapes</p>
-              <ul className="mt-1 space-y-1">
-                {laps.map((lap) => (
-                  <li
-                    key={lap.id}
-                    className="flex items-center justify-between rounded-md bg-slate-100/70 px-2 py-1 font-mono text-[12px] font-semibold text-slate-700 dark:bg-slate-800/60 dark:text-slate-100"
-                  >
-                    <span>{lap.label}</span>
-                    <span>{formatDuration(lap.elapsedMs)}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-wrap items-center gap-2 rounded-md bg-slate-50 px-2 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-800/40 dark:text-slate-300">
+                  <span>Étapes</span>
+                  <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-bold text-slate-700 dark:bg-slate-700 dark:text-slate-100">
+                    {laps.length}
+                  </span>
+                </div>
+                <ul className="space-y-1">
+                  {laps.map((lap) => (
+                    <li
+                      key={lap.id}
+                      className="flex flex-col gap-1 rounded-md bg-slate-100/70 px-2 py-2 font-mono text-[12px] font-semibold text-slate-700 shadow-sm dark:bg-slate-800/60 dark:text-slate-100"
+                    >
+                      <div className="flex items-center gap-2">
+                        <input
+                          value={lap.label}
+                          onChange={(event) => onLapLabelChange(timer.id, lap.id, event.target.value)}
+                          className="w-full rounded-md border border-slate-200 bg-white px-2 py-1 text-[12px] font-semibold text-slate-800 shadow-inner focus:border-primary-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => onLapRemove(timer.id, lap.id)}
+                          className="rounded-md bg-rose-100 px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-rose-700 transition hover:bg-rose-200 dark:bg-rose-900/40 dark:text-rose-200 dark:hover:bg-rose-900/60"
+                        >
+                          Suppr
+                        </button>
+                      </div>
+                      <span className="text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-300">{formatDuration(lap.elapsedMs)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           )}
 
           {editMode && (
             <div className="space-y-2 rounded-lg bg-slate-50/80 p-3 text-xs dark:bg-slate-800/60">
-              {!canEdit && (
-                <p className="text-rose-500 dark:text-rose-300">Pausez le timer pour pouvoir le modifier.</p>
-              )}
+              {!canEdit && <p className="text-rose-500 dark:text-rose-300">Pausez le timer pour pouvoir le modifier.</p>}
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 <label className="space-y-1">
                   <span className="block text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
@@ -250,6 +288,27 @@ export const TimerCard = ({ timer, onStart, onPause, onReset, onRemove, onDuplic
                   className="rounded-full bg-primary-600 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Enregistrer
+                </button>
+              </div>
+            </div>
+          )}
+
+          {timer.kind === 'stopwatch' && (
+            <div className="space-y-2 rounded-lg bg-slate-50/80 p-3 text-xs dark:bg-slate-800/60">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-300">Ajouter une étape nommée</p>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <input
+                  value={customLapLabel}
+                  onChange={(event) => setCustomLapLabel(event.target.value)}
+                  placeholder="Sprint, repos actif..."
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 shadow-sm focus:border-primary-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                />
+                <button
+                  type="button"
+                  onClick={handleCustomLap}
+                  className="whitespace-nowrap rounded-lg bg-primary-600 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                  Ajouter l&apos;étape
                 </button>
               </div>
             </div>
