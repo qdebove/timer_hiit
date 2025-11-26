@@ -19,6 +19,7 @@ export const TimerCard = ({ timer, onStart, onPause, onReset, onRemove, onDuplic
   const hasTarget = timer.kind === 'countdown' || timer.durationMs > 0;
   const progress = hasTarget ? Math.min(100, (timer.elapsedMs / (timer.durationMs || 1)) * 100 || 0) : 0;
   const displayTime = timer.kind === 'countdown' ? formatDuration(timer.remainingMs) : formatDuration(timer.elapsedMs);
+  const laps = timer.laps ?? [];
   const [showAdmin, setShowAdmin] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [name, setName] = useState(timer.name);
@@ -154,11 +155,11 @@ export const TimerCard = ({ timer, onStart, onPause, onReset, onRemove, onDuplic
             </button>
           </div>
 
-          {timer.kind === 'stopwatch' && timer.laps.length > 0 && (
+          {timer.kind === 'stopwatch' && laps.length > 0 && (
             <div className="rounded-lg bg-white/70 p-3 text-xs shadow-inner dark:bg-slate-900/60">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Étapes</p>
               <ul className="mt-1 space-y-1">
-                {timer.laps.map((lap) => (
+                {laps.map((lap) => (
                   <li
                     key={lap.id}
                     className="flex items-center justify-between rounded-md bg-slate-100/70 px-2 py-1 font-mono text-[12px] font-semibold text-slate-700 dark:bg-slate-800/60 dark:text-slate-100"
