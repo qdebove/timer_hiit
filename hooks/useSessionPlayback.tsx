@@ -65,9 +65,16 @@ export const useSessionPlayback = (sessions: TimerSession[]) => {
       return;
     }
 
-    if (!activeSessionId || !sessions.some((session) => session.id === activeSessionId)) {
-      setActiveSessionId(sessions[0].id);
+    const existing = sessions.find((session) => session.id === activeSessionId);
+    const latest = sessions[sessions.length - 1];
+
+    if (!existing) {
+      setActiveSessionId(latest.id);
+      return;
     }
+
+    // Ensure the active session stays in sync when the order or content changes
+    setActiveSessionId(existing.id);
   }, [activeSessionId, sessions]);
 
   useEffect(() => {

@@ -65,7 +65,7 @@ export const TimerCard = ({ timer, onStart, onPause, onReset, onRemove, onDuplic
         <span className="h-3 w-3 rounded-full" style={{ background: timer.color }} />
       </div>
 
-      <div className="flex items-center gap-4 rounded-xl bg-slate-900/90 px-4 py-3 text-white shadow-inner dark:bg-slate-800">
+      <div className="flex flex-wrap items-center gap-4 rounded-xl bg-slate-900/90 px-4 py-3 text-white shadow-inner dark:bg-slate-800 md:flex-nowrap">
         <button
           type="button"
           onClick={() => (timer.isRunning ? onPause(timer.id) : onStart(timer.id))}
@@ -79,7 +79,7 @@ export const TimerCard = ({ timer, onStart, onPause, onReset, onRemove, onDuplic
             <span className="text-xs font-semibold text-emerald-100/80">cible {formatDuration(timer.durationMs)}</span>
           )}
         </div>
-        <div className="ml-auto flex items-center gap-2 text-xs uppercase tracking-wide text-slate-200">
+        <div className="ml-auto flex flex-wrap items-center gap-2 text-xs uppercase tracking-wide text-slate-200">
           <button
             type="button"
             onClick={() => onPause(timer.id)}
@@ -117,7 +117,7 @@ export const TimerCard = ({ timer, onStart, onPause, onReset, onRemove, onDuplic
         </div>
       )}
 
-      <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
         <span>{timer.isRunning ? 'Lecture en cours' : 'Prêt à démarrer'}</span>
         <button
           type="button"
