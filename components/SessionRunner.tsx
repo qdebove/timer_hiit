@@ -1,157 +1,32 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { formatDuration } from '@/lib/utils';
 import type { TimerSession } from '@/types/timer';
-
-type Step = {
-  id: string;
-  label: string;
-  durationMs: number;
-  type: 'segment' | 'rest';
-  color: string;
-};
+import type { useSessionPlayback } from '@/hooks/useSessionPlayback';
 
 interface Props {
   sessions: TimerSession[];
+  playback: ReturnType<typeof useSessionPlayback>;
 }
 
-export const SessionRunner = ({ sessions }: Props) => {
-  const [activeSessionId, setActiveSessionId] = useState<string | undefined>(sessions[0]?.id);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [remainingMs, setRemainingMs] = useState(0);
-  const [isRunning, setIsRunning] = useState(false);
-  const [completed, setCompleted] = useState(false);
-  const lastTickRef = useRef<number>();
-
-  const activeSession = useMemo(
-    () => sessions.find((session) => session.id === activeSessionId),
-    [activeSessionId, sessions]
-  );
-
-  const steps = useMemo<Step[]>(() => {
-    if (!activeSession) return [];
-    const baseDelay = activeSession.delayBetweenMs ?? 0;
-
-    const expanded: Step[] = [];
-
-    activeSession.segments.forEach((segment, segmentIndex) => {
-      for (let repetition = 0; repetition < segment.repetitions; repetition += 1) {
-        expanded.push({
-          id: `${segment.id}-${repetition}`,
-          label: segment.label,
-          durationMs: segment.durationMs,
-          type: 'segment',
-          color: segment.color
-        });
-
-        const shouldAddRest = baseDelay > 0 && !(segmentIndex === activeSession.segments.length - 1 && repetition === segment.repetitions - 1);
-        if (shouldAddRest) {
-          expanded.push({
-            id: `${segment.id}-rest-${repetition}`,
-            label: 'Repos',
-            durationMs: baseDelay,
-            type: 'rest',
-            color: '#64748b'
-          });
-        }
-      }
-    });
-
-    return expanded;
-  }, [activeSession]);
-
-  const currentStep = steps[currentIndex];
-  const nextStep = steps[currentIndex + 1];
-
-  useEffect(() => {
-    if (sessions.length === 0) {
-      setActiveSessionId(undefined);
-      return;
-    }
-
-    if (!activeSessionId || !sessions.some((session) => session.id === activeSessionId)) {
-      setActiveSessionId(sessions[0].id);
-    }
-  }, [activeSessionId, sessions]);
-
-  useEffect(() => {
-    setCurrentIndex(0);
-    setRemainingMs(steps[0]?.durationMs ?? 0);
-    setIsRunning(false);
-    setCompleted(false);
-  }, [activeSessionId, steps]);
-
-  const handleAdvance = useCallback(() => {
-    setCurrentIndex((prev) => {
-      const nextIndex = prev + 1;
-      if (nextIndex >= steps.length) {
-        setIsRunning(false);
-        setCompleted(true);
-        setRemainingMs(0);
-        return prev;
-      }
-      setRemainingMs(steps[nextIndex].durationMs);
-      lastTickRef.current = Date.now();
-      return nextIndex;
-    });
-  }, [steps]);
-
-  useEffect(() => {
-    if (!isRunning || !currentStep) return undefined;
-    lastTickRef.current = Date.now();
-
-    const interval = window.setInterval(() => {
-      setRemainingMs((prev) => {
-        const now = Date.now();
-        const delta = now - (lastTickRef.current ?? now);
-        lastTickRef.current = now;
-        const nextRemaining = prev - delta;
-        if (nextRemaining <= 0) {
-          handleAdvance();
-          return 0;
-        }
-        return nextRemaining;
-      });
-    }, 200);
-
-    return () => window.clearInterval(interval);
-  }, [currentStep, handleAdvance, isRunning]);
-
-  const handleStart = () => {
-    if (!currentStep) return;
-    setIsRunning(true);
-    setCompleted(false);
-    if (remainingMs === 0) setRemainingMs(currentStep.durationMs);
-    lastTickRef.current = Date.now();
-  };
-
-  const handlePause = () => setIsRunning(false);
-
-  const handleResetStep = () => {
-    if (!currentStep) return;
-    setRemainingMs(currentStep.durationMs);
-    setCompleted(false);
-    setIsRunning(false);
-  };
-
-  const handleStop = () => {
-    if (steps.length === 0) return;
-    setCurrentIndex(0);
-    setRemainingMs(steps[0].durationMs);
-    setIsRunning(false);
-    setCompleted(false);
-  };
-
-  const handleSkip = () => {
-    if (!currentStep) return;
-    handleAdvance();
-  };
-
-  const sessionDuration = useMemo(
-    () => steps.reduce((total, step) => total + step.durationMs, 0),
-    [steps]
-  );
+export const SessionRunner = ({ sessions, playback }: Props) => {
+  const {
+    activeSessionId,
+    setActiveSessionId,
+    currentIndex,
+    currentStep,
+    nextStep,
+    remainingMs,
+    isRunning,
+    completed,
+    steps,
+    start,
+    pause,
+    resetStep,
+    stop,
+    skip,
+    sessionDuration
+  } = playback;
 
   return (
     <div className="space-y-4 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-card dark:border-slate-800 dark:bg-slate-900/60">
@@ -190,7 +65,7 @@ export const SessionRunner = ({ sessions }: Props) => {
             <div className="flex flex-wrap gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
               <button
                 type="button"
-                onClick={handleStart}
+                onClick={start}
                 disabled={!currentStep}
                 className="rounded-full bg-emerald-500 px-4 py-2 text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
               >
@@ -198,7 +73,7 @@ export const SessionRunner = ({ sessions }: Props) => {
               </button>
               <button
                 type="button"
-                onClick={handlePause}
+                onClick={pause}
                 disabled={!currentStep || !isRunning}
                 className="rounded-full border border-slate-200 px-4 py-2 text-slate-800 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-800"
               >
@@ -206,7 +81,7 @@ export const SessionRunner = ({ sessions }: Props) => {
               </button>
               <button
                 type="button"
-                onClick={handleResetStep}
+                onClick={resetStep}
                 disabled={!currentStep}
                 className="rounded-full border border-slate-200 px-4 py-2 text-slate-800 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-800"
               >
@@ -214,7 +89,7 @@ export const SessionRunner = ({ sessions }: Props) => {
               </button>
               <button
                 type="button"
-                onClick={handleStop}
+                onClick={stop}
                 disabled={!currentStep}
                 className="rounded-full border border-rose-200 px-4 py-2 text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-rose-900/60 dark:text-rose-200 dark:hover:bg-rose-950"
               >
@@ -242,12 +117,12 @@ export const SessionRunner = ({ sessions }: Props) => {
               <div className="mt-3 flex items-center justify-between text-xs text-white/70">
                 <span className="inline-flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full" style={{ background: currentStep?.color ?? '#94a3b8' }} />
-                  {currentStep?.type === 'rest' ? 'Phase de repos sautable' : 'Phase d\'effort'}
+                  {currentStep?.type === 'rest' ? 'Phase de repos sautable' : "Phase d'effort"}
                 </span>
                 {currentStep && (
                   <button
                     type="button"
-                    onClick={handleSkip}
+                    onClick={skip}
                     className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide transition hover:bg-white/20"
                   >
                     Passer cette étape

@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from 'react';
 import { createId } from '@/lib/utils';
 import { useLocalRepository } from './useLocalRepository';
-import type { TimerConfig, TimerKind } from '@/types/timer';
+import type { TimerConfig, TimerKind, TimerLap } from '@/types/timer';
 
 const TIMER_STORAGE_KEY = 'timer-hiit:timers';
 
@@ -21,6 +21,11 @@ export const useTimerManager = () => {
     TIMER_STORAGE_KEY,
     []
   );
+
+  useEffect(() => {
+    if (!hydrated) return;
+    setTimers((prev) => prev.map((timer) => ({ ...timer, laps: timer.laps ?? [] })));
+  }, [hydrated, setTimers]);
 
   const hasRunning = useMemo(() => timers.some((timer) => timer.isRunning), [timers]);
 
@@ -76,6 +81,7 @@ export const useTimerManager = () => {
         elapsedMs: 0,
         remainingMs: input.kind === 'countdown' ? input.durationMs : input.durationMs,
         isRunning: false,
+        laps: [],
         createdAt: now,
         updatedAt: now
       }
@@ -126,8 +132,33 @@ export const useTimerManager = () => {
       elapsedMs: 0,
       remainingMs: timer.durationMs,
       lastStartedAt: undefined,
+      laps: [],
       updatedAt: now
     }));
+  };
+
+  const addLap = (id: string, label?: string) => {
+    const now = Date.now();
+    updateTimer(id, (timer) => {
+      if (timer.kind !== 'stopwatch') return timer;
+      const liveElapsed =
+        timer.isRunning && timer.lastStartedAt ? timer.elapsedMs + (now - timer.lastStartedAt) : timer.elapsedMs;
+      const lap: TimerLap = {
+        id: createId(),
+        label: label ?? `Étape ${timer.laps.length + 1}`,
+        elapsedMs: liveElapsed,
+        createdAt: now
+      };
+
+      return {
+        ...timer,
+        elapsedMs: liveElapsed,
+        remainingMs: Math.max(timer.durationMs - liveElapsed, 0),
+        lastStartedAt: timer.isRunning ? now : timer.lastStartedAt,
+        laps: [...timer.laps, lap],
+        updatedAt: now
+      };
+    });
   };
 
   const duplicate = (id: string) => {
@@ -167,6 +198,7 @@ export const useTimerManager = () => {
     start,
     pause,
     reset,
+    addLap,
     duplicate,
     edit
   } as const;
