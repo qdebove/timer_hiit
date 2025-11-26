@@ -13,10 +13,10 @@ import { useSessionPlayback } from '@/hooks/useSessionPlayback';
 import { useTimerManager } from '@/hooks/useTimerManager';
 
 const navItems = [
-  { id: 'overview', label: 'Tableau de bord', description: 'Synthèse et ambiance pastel' },
-  { id: 'timers', label: 'Chronos & rebours', description: 'Créer, éditer, dupliquer' },
-  { id: 'sessions', label: 'Sessions', description: 'Assembler et préparer' },
-  { id: 'live', label: 'Cockpit', description: 'Lecture et contrôle' }
+  { id: 'overview', label: 'Tableau de bord', description: 'Synthèse et ambiance pastel', action: 'Consulter' },
+  { id: 'timers', label: 'Chronos & rebours', description: 'Créer, éditer, dupliquer', action: 'Configurer' },
+  { id: 'sessions', label: 'Sessions', description: 'Assembler et préparer', action: 'Composer' },
+  { id: 'live', label: 'Cockpit', description: 'Lecture et contrôle', action: 'Piloter' }
 ] as const;
 
 type NavSection = (typeof navItems)[number]['id'];
@@ -255,8 +255,8 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-emerald-50 dark:from-slate-950 dark:via-slate-950 dark:to-emerald-950">
-      <main className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid gap-6 lg:grid-cols-[250px,1fr]">
+      <main className="mx-auto flex w-full max-w-screen-xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-10">
+        <div className="grid gap-8 lg:grid-cols-[280px,1fr] xl:grid-cols-[320px,1fr]">
           <aside className="space-y-4">
             <div className="flex items-center justify-between rounded-3xl border border-slate-200 bg-white/80 p-4 shadow-card dark:border-slate-800 dark:bg-slate-900/70">
               <div>
@@ -265,7 +265,8 @@ export default function HomePage() {
               </div>
               <ThemeToggle />
             </div>
-            <nav className="space-y-2">
+            <nav className="space-y-2 rounded-3xl border border-slate-200 bg-white/70 p-3 shadow-card dark:border-slate-800 dark:bg-slate-900/60">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Choisir une vue</p>
               {navItems.map((item) => {
                 const active = activeSection === item.id;
                 return (
@@ -278,9 +279,15 @@ export default function HomePage() {
                         ? 'border-primary-300 bg-white/90 text-slate-900 dark:border-primary-800 dark:bg-slate-900/70 dark:text-white'
                         : 'border-slate-200 bg-white/60 text-slate-700 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-100'
                     }`}
+                    aria-label={`${item.action} : ${item.label}`}
                   >
                     <p className="text-sm font-bold">{item.label}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{item.description}</p>
+                    <div className="mt-1 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                      <span className="truncate">{item.description}</span>
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                        {item.action}
+                      </span>
+                    </div>
                   </button>
                 );
               })}
@@ -293,7 +300,7 @@ export default function HomePage() {
             </div>
           </aside>
 
-          <section className="space-y-4">{renderSection()}</section>
+          <section className="space-y-6">{renderSection()}</section>
         </div>
       </main>
 
