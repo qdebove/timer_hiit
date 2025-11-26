@@ -143,6 +143,21 @@ export const useTimerManager = () => {
     });
   };
 
+  const edit = (id: string, payload: { name: string; kind: TimerKind; durationMs: number; color: string }) => {
+    const now = Date.now();
+    updateTimer(id, (timer) => {
+      if (timer.isRunning) return timer;
+      return {
+        ...timer,
+        ...payload,
+        elapsedMs: 0,
+        remainingMs: payload.durationMs,
+        lastStartedAt: undefined,
+        updatedAt: now
+      };
+    });
+  };
+
   return {
     timers,
     hydrated,
@@ -152,6 +167,7 @@ export const useTimerManager = () => {
     start,
     pause,
     reset,
-    duplicate
+    duplicate,
+    edit
   } as const;
 };
