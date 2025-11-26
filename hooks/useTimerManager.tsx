@@ -141,11 +141,12 @@ export const useTimerManager = () => {
     const now = Date.now();
     updateTimer(id, (timer) => {
       if (timer.kind !== 'stopwatch') return timer;
+      const laps = timer.laps ?? [];
       const liveElapsed =
         timer.isRunning && timer.lastStartedAt ? timer.elapsedMs + (now - timer.lastStartedAt) : timer.elapsedMs;
       const lap: TimerLap = {
         id: createId(),
-        label: label ?? `Étape ${timer.laps.length + 1}`,
+        label: label ?? `Étape ${laps.length + 1}`,
         elapsedMs: liveElapsed,
         createdAt: now
       };
@@ -155,7 +156,7 @@ export const useTimerManager = () => {
         elapsedMs: liveElapsed,
         remainingMs: Math.max(timer.durationMs - liveElapsed, 0),
         lastStartedAt: timer.isRunning ? now : timer.lastStartedAt,
-        laps: [...timer.laps, lap],
+        laps: [...laps, lap],
         updatedAt: now
       };
     });
