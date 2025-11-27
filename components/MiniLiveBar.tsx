@@ -51,11 +51,11 @@ export const MiniLiveBar = ({ timers, sessions, onStartTimer, onPauseTimer, onRe
   }
 
   return (
-    <div className="fixed bottom-4 left-4 z-40 w-full max-w-2xl rounded-2xl border border-slate-200 bg-white/85 p-4 shadow-2xl backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/85">
+    <div className="fixed bottom-4 left-4 z-40 w-full max-w-2xl rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-2xl backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/90">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-primary-700 dark:text-primary-200">Live</p>
-          <h4 className="text-base font-bold text-slate-900 dark:text-white">Mini-bar des flux</h4>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-primary-700 dark:text-primary-200">Lecture en direct</p>
+          <h4 className="text-base font-bold text-slate-900 dark:text-white">Player unique pour vos timers</h4>
         </div>
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-primary-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary-700 dark:bg-primary-500/20 dark:text-primary-100">
@@ -114,7 +114,7 @@ export const MiniLiveBar = ({ timers, sessions, onStartTimer, onPauseTimer, onRe
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-primary-500" />
                 <div className="flex flex-col">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-primary-700 dark:text-primary-200">Session</span>
+                  <span className="text-xs font-semibold uppercase tracking-wide text-primary-700 dark:text-primary-200">Session prête</span>
                   <select
                     value={activeSessionId}
                     onChange={(event) => setActiveSessionId(event.target.value)}
