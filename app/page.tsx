@@ -1,6 +1,5 @@
 'use client';
 
-import { useMemo, useState } from 'react';
 import { FloatingTimerAction } from '@/components/FloatingTimerAction';
 import { MiniLiveBar } from '@/components/MiniLiveBar';
 import { SessionBuilder } from '@/components/SessionBuilder';
@@ -11,6 +10,7 @@ import { TimerForm } from '@/components/TimerForm';
 import { useSessionManager } from '@/hooks/useSessionManager';
 import { useSessionPlayback } from '@/hooks/useSessionPlayback';
 import { useTimerManager } from '@/hooks/useTimerManager';
+import { useMemo, useState } from 'react';
 
 const navItems = [
   { id: 'overview', label: 'Tableau de bord', description: 'Statistiques et raccourcis', action: 'Voir' },
@@ -26,12 +26,6 @@ const quickLinks = [
 ] as const;
 
 type NavSection = (typeof navItems)[number]['id'];
-
-const TIMER_TIPS = [
-  'Dupliquez vos rebours pour tester différentes intensités sans repartir de zéro.',
-  'Ajoutez des étapes nommées sur les chronomètres libres pour préparer vos séquences HIIT.',
-  'Gardez quelques timers colorés pour repérer les phases clés en un coup d’œil.'
-];
 
 export default function HomePage() {
   const [activeSection, setActiveSection] = useState<NavSection>('overview');
@@ -293,48 +287,6 @@ export default function HomePage() {
               <span className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">{stats.totalLaps} étapes notées</span>
             </div>
             {timerLibrary}
-          </div>
-          <div className="space-y-4 rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-card dark:border-slate-800 dark:bg-slate-900/70">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Sessions prêtes</p>
-              <span className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">{sessions.length} disponibles</span>
-            </div>
-            {sessionsBuilder}
-          </div>
-        </div>
-
-        <div className="grid gap-4 rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-card dark:border-slate-800 dark:bg-slate-900/70 lg:grid-cols-[1fr,0.8fr]">
-          <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-primary-700 dark:text-primary-200">Navigation rapide</p>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setActiveSection(item.id)}
-                  className="flex items-start justify-between rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900/70"
-                >
-                  <div>
-                    <p className="text-sm font-bold">{item.label}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{item.description}</p>
-                  </div>
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                    {item.action}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="space-y-2 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600 shadow-inner dark:bg-slate-900/60 dark:text-slate-300">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Conseils</p>
-            <ul className="space-y-1">
-              {TIMER_TIPS.map((tip) => (
-                <li key={tip} className="flex items-start gap-2">
-                  <span className="mt-1 h-2 w-2 rounded-full bg-primary-500" />
-                  <span>{tip}</span>
-                </li>
-              ))}
-            </ul>
           </div>
         </div>
       </div>
