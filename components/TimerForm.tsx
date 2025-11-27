@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { parseDurationToMs } from '@/lib/utils';
+import { formatDuration, parseDurationToMs } from '@/lib/utils';
 import type { TimerKind } from '@/types/timer';
 
 interface Props {
@@ -14,6 +14,8 @@ export const TimerForm = ({ onCreate }: Props) => {
   const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(30);
   const [color, setColor] = useState('#6366f1');
+
+  const computedDuration = parseDurationToMs(minutes, seconds);
 
   useEffect(() => {
     if (kind === 'stopwatch') {
@@ -42,11 +44,32 @@ export const TimerForm = ({ onCreate }: Props) => {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
+        <div className="sm:col-span-2">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Type</p>
+          <div className="mt-1 grid grid-cols-2 gap-2">
+            {[{ value: 'countdown', label: 'Compte à rebours', icon: '⬇️' }, { value: 'stopwatch', label: 'Chronomètre', icon: '⏱️' }].map((option) => {
+              const active = kind === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setKind(option.value as TimerKind)}
+                  className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm font-semibold transition hover:-translate-y-0.5 hover:shadow-md ${
+                    active
+                      ? 'border-primary-400 bg-primary-50 text-primary-800 dark:border-primary-700 dark:bg-primary-500/20 dark:text-primary-100'
+                      : 'border-slate-200 bg-white text-slate-700 hover:border-primary-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100'
+                  }`}
+                >
+                  <span aria-hidden>{option.icon}</span>
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
-            Minutes
-          </label>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Minutes</label>
           <input
             type="number"
             min={0}
@@ -57,9 +80,7 @@ export const TimerForm = ({ onCreate }: Props) => {
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
-            Secondes
-          </label>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Secondes</label>
           <input
             type="number"
             min={0}
@@ -70,17 +91,6 @@ export const TimerForm = ({ onCreate }: Props) => {
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Type</label>
-          <select
-            value={kind}
-            onChange={(e) => setKind(e.target.value as TimerKind)}
-            className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus:border-primary-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-          >
-            <option value="countdown">Compte à rebours</option>
-            <option value="stopwatch">Chronomètre</option>
-          </select>
-        </div>
-        <div>
           <label className="block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Couleur</label>
           <input
             type="color"
@@ -88,6 +98,24 @@ export const TimerForm = ({ onCreate }: Props) => {
             onChange={(e) => setColor(e.target.value)}
             className="mt-1 h-10 w-full rounded-lg border border-slate-200 bg-white px-2 py-1 focus:border-primary-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900"
           />
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-dashed border-slate-200 bg-white/60 px-4 py-3 shadow-inner dark:border-slate-700 dark:bg-slate-900/40">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Aperçu</p>
+        <div className="mt-2 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="inline-block h-3 w-3 rounded-full" style={{ background: color }} />
+            <div className="flex flex-col">
+              <span className="font-semibold text-slate-800 dark:text-slate-100">{name}</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                {kind === 'countdown' ? 'Compte à rebours' : 'Chronomètre'}
+              </span>
+            </div>
+          </div>
+          <span className="font-mono text-sm font-bold text-slate-900 dark:text-white">
+            {kind === 'stopwatch' ? '00:00' : formatDuration(computedDuration)}
+          </span>
         </div>
       </div>
 
@@ -101,7 +129,7 @@ export const TimerForm = ({ onCreate }: Props) => {
           type="submit"
           className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-primary-500 to-primary-700 px-4 py-2 text-sm font-semibold text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-lg"
         >
-          Ajouter un timer
+          {kind === 'stopwatch' ? 'Créer le chronomètre' : `Créer le timer (${formatDuration(computedDuration)})`}
         </button>
       </div>
     </form>
