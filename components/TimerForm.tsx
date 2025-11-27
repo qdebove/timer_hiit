@@ -47,7 +47,7 @@ export const TimerForm = ({ onCreate }: Props) => {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
         <div className="sm:col-span-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Type</p>
-          <div className="mt-1 grid grid-cols-2 gap-2">
+          <div className="mt-1 grid grid-cols-1 gap-2 sm:grid-cols-2">
             {[{ value: 'countdown', label: 'Compte à rebours', icon: '⬇️' }, { value: 'stopwatch', label: 'Chronomètre', icon: '⏱️' }].map((option) => {
               const active = kind === option.value;
               return (
@@ -55,7 +55,7 @@ export const TimerForm = ({ onCreate }: Props) => {
                   key={option.value}
                   type="button"
                   onClick={() => setKind(option.value as TimerKind)}
-                  className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm font-semibold transition hover:-translate-y-0.5 hover:shadow-md ${
+                  className={`flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm font-semibold transition hover:-translate-y-0.5 hover:shadow-md ${
                     active
                       ? 'border-primary-400 bg-primary-50 text-primary-800 dark:border-primary-700 dark:bg-primary-500/20 dark:text-primary-100'
                       : 'border-slate-200 bg-white text-slate-700 hover:border-primary-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100'
