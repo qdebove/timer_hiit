@@ -58,7 +58,7 @@ export const SessionBuilder = ({ sessions, timers, onCreate, onRemove, onDuplica
   };
 
   return (
-    <div className="space-y-4 rounded-2xl border border-slate-200 bg-white/70 p-4 shadow-card dark:border-slate-800 dark:bg-slate-900/60">
+    <div className="space-y-4 rounded-2xl border border-slate-200/80 bg-white/80 p-4 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/60">
       <div className="flex items-center justify-between gap-2">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Sessions</p>

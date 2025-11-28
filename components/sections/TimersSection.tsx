@@ -31,19 +31,18 @@ export const TimersSection = ({
   ...timerHandlers
 }: Props) => {
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-card dark:border-slate-800 dark:bg-slate-900/70 lg:grid-cols-[360px,1fr]">
-        <div className="space-y-3">
-          <SectionHeader
-            eyebrow="Timers"
-            title="Créer et gérer vos timers"
-            description="Choisissez un compte à rebours ou un chronomètre, prévisualisez, puis enregistrez."
-          />
-          <TimerForm onCreate={onCreateTimer} />
-        </div>
+    <div className="space-y-5 lg:space-y-6">
+      <SectionHeader
+        eyebrow="Timers"
+        title="Créer et gérer vos timers"
+        description="Choisissez un compte à rebours ou un chronomètre, prévisualisez, puis enregistrez."
+      />
 
-        <div className="space-y-3">
-          <div className="rounded-2xl border border-dashed border-primary-200 bg-primary-50/60 p-4 dark:border-primary-900/60 dark:bg-primary-500/10">
+      <div className="grid gap-4 lg:grid-cols-[1fr,1.05fr]">
+        <TimerForm onCreate={onCreateTimer} />
+
+        <div className="space-y-3 rounded-3xl border border-slate-200/80 bg-white/80 p-4 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/60">
+          <div className="rounded-2xl border border-dashed border-primary-200/70 bg-primary-50/60 p-4 dark:border-primary-900/60 dark:bg-primary-500/10">
             <p className="text-sm font-semibold text-primary-700 dark:text-primary-200">Astuce chrono</p>
             <p className="text-sm text-slate-600 dark:text-slate-300">
               Inspirez-vous de vos sessions : ajoutez des étapes nommées, renommez-les ou supprimez-les directement depuis la carte du chrono.

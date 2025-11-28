@@ -13,7 +13,7 @@ interface Props {
 
 export const AppShell = ({ activeSection, onSectionChange, children }: Props) => {
   return (
-    <main className="mx-auto flex w-full max-w-screen-xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+    <main className="mx-auto flex w-full max-w-screen-xl flex-col gap-5 px-4 py-5 sm:px-6 lg:gap-8 lg:px-10 lg:py-10">
       <div className="grid gap-6 lg:grid-cols-[260px,1fr] xl:grid-cols-[280px,1fr]">
         {/* Sidebar visible seulement à partir de lg */}
         <aside className="hidden space-y-4 lg:block">
@@ -62,7 +62,7 @@ export const AppShell = ({ activeSection, onSectionChange, children }: Props) =>
         </aside>
 
         {/* Contenu principal */}
-        <section className="space-y-6">{children}</section>
+        <section className="min-w-0 space-y-5 lg:space-y-6">{children}</section>
       </div>
     </main>
   );
