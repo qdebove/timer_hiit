@@ -24,6 +24,18 @@ interface Props {
   onLapRemove: (timerId: string, lapId: string) => void;
 }
 
+const ChronoTip = () => (
+  <aside className="max-w-xs rounded-2xl border border-dashed border-primary-200/70 bg-primary-50/70 px-3 py-2 text-xs sm:text-sm dark:border-primary-900/60 dark:bg-primary-500/10">
+    <p className="font-semibold text-primary-700 dark:text-primary-200">
+      Astuce chrono
+    </p>
+    <p className="mt-1 text-slate-600 dark:text-slate-300">
+      Inspirez-vous de vos sessions : ajoutez des étapes nommées, renommez-les ou
+      supprimez-les directement depuis la carte du chrono.
+    </p>
+  </aside>
+);
+
 export const TimersSection = ({
   stats,
   timers,
@@ -31,31 +43,23 @@ export const TimersSection = ({
   ...timerHandlers
 }: Props) => {
   return (
-    <div className="space-y-5 lg:space-y-6">
+    <section className="space-y-5 lg:space-y-6">
       <SectionHeader
         eyebrow="Timers"
         title="Créer et gérer vos timers"
         description="Choisissez un compte à rebours ou un chronomètre, prévisualisez, puis enregistrez."
+        rightSlot={<ChronoTip />}
       />
 
-      <div className="grid gap-4 lg:grid-cols-[1fr,1.05fr]">
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <TimerForm onCreate={onCreateTimer} />
 
-        <div className="space-y-3 rounded-3xl border border-slate-200/80 bg-white/80 p-4 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/60">
-          <div className="rounded-2xl border border-dashed border-primary-200/70 bg-primary-50/60 p-4 dark:border-primary-900/60 dark:bg-primary-500/10">
-            <p className="text-sm font-semibold text-primary-700 dark:text-primary-200">Astuce chrono</p>
-            <p className="text-sm text-slate-600 dark:text-slate-300">
-              Inspirez-vous de vos sessions : ajoutez des étapes nommées, renommez-les ou supprimez-les directement depuis la carte du chrono.
-            </p>
-          </div>
-
-          <TimerLibrary
-            timers={timers}
-            stats={{ totalLaps: stats.totalLaps }}
-            {...timerHandlers}
-          />
-        </div>
+        <TimerLibrary
+          timers={timers}
+          stats={{ totalLaps: stats.totalLaps }}
+          {...timerHandlers}
+        />
       </div>
-    </div>
+    </section>
   );
 };
