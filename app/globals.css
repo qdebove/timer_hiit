@@ -18,6 +18,12 @@ body {
   button {
     @apply whitespace-normal break-words leading-tight transition duration-150 ease-out;
   }
+
+  input,
+  select,
+  textarea {
+    @apply max-w-full min-w-0;
+  }
 }
 
 .shadow-card {

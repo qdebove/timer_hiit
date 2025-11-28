@@ -42,57 +42,51 @@ export const OverviewSection = ({
   ...timerHandlers
 }: Props) => {
   return (
-    <div className="space-y-6">
-      <div className="rounded-3xl bg-gradient-to-br from-indigo-50 via-white to-emerald-50 p-6 shadow-card dark:from-slate-900 dark:via-slate-950 dark:to-emerald-900/40">
-        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-          <div className="space-y-3">
-            <SectionHeader
-              eyebrow="Tableau de bord"
-              title="Bienvenue dans vos timers"
-              description="Visualisez l’essentiel puis lancez-vous : timers, sessions ou lecture en direct."
-            />
+    <div className="space-y-5 lg:space-y-6">
+      <div className="space-y-4 rounded-3xl border border-slate-200/80 bg-white/80 p-5 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/60">
+        <SectionHeader
+          eyebrow="Tableau de bord"
+          title="Bienvenue dans vos timers"
+          description="Visualisez l’essentiel puis lancez-vous : timers, sessions ou lecture en direct."
+        />
 
-            <div className="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-              {QUICK_LINKS.map((link) => (
-                <button
-                  key={link.id}
-                  type="button"
-                  onClick={() => onSelectSection(link.id as NavSection)}
-                  className="rounded-full bg-white/80 px-4 py-2 shadow-inner transition hover:-translate-y-0.5 hover:shadow-lg dark:bg-slate-900/80"
-                >
-                  {link.title}
-                </button>
-              ))}
-            </div>
-          </div>
+        <div className="flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+          {QUICK_LINKS.map((link) => (
+            <button
+              key={link.id}
+              type="button"
+              onClick={() => onSelectSection(link.id as NavSection)}
+              className="rounded-full bg-slate-50 px-4 py-2 shadow-inner transition hover:-translate-y-0.5 hover:shadow md:px-5 dark:bg-slate-800/80"
+            >
+              {link.title}
+            </button>
+          ))}
+        </div>
 
-          <div className="grid grid-cols-1 gap-3 text-center sm:grid-cols-3">
-            <StatCard
-              label="Timers"
-              value={stats.timersTotal}
-              sub={`Rebours ${stats.countdowns} • Chronos ${stats.stopwatches}`}
-            />
-            <StatCard label="Sessions" value={stats.sessions} sub="Assemblages prêts à lancer" tone="amber" />
-            <StatCard label="En cours" value={stats.runningTimers} sub="Timers actifs" tone="emerald" />
-          </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <StatCard
+            label="Timers"
+            value={stats.timersTotal}
+            sub={`Rebours ${stats.countdowns} • Chronos ${stats.stopwatches}`}
+          />
+          <StatCard label="Sessions" value={stats.sessions} sub="Assemblages prêts à lancer" tone="amber" />
+          <StatCard label="En cours" value={stats.runningTimers} sub="Timers actifs" tone="emerald" />
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
-        <div className="space-y-4 rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-card dark:border-slate-800 dark:bg-slate-900/70">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Chronos favoris</p>
-            <span className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
-              {stats.totalLaps} étapes notées
-            </span>
-          </div>
-
-          <TimerLibrary
-            timers={timers}
-            stats={{ totalLaps: stats.totalLaps }}
-            {...timerHandlers}
-          />
+      <div className="space-y-3 rounded-3xl border border-slate-200/80 bg-white/80 p-4 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/60">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Chronos favoris</p>
+          <span className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            {stats.totalLaps} étapes notées
+          </span>
         </div>
+
+        <TimerLibrary
+          timers={timers}
+          stats={{ totalLaps: stats.totalLaps }}
+          {...timerHandlers}
+        />
       </div>
     </div>
   );
@@ -114,7 +108,7 @@ const StatCard = ({ label, value, sub, tone = 'default' }: StatCardProps) => {
         : 'text-primary-600 dark:text-primary-300';
 
   return (
-    <div className="rounded-2xl bg-white/80 p-3 shadow-inner dark:bg-slate-900/70">
+    <div className="rounded-2xl border border-slate-200/70 bg-white/70 p-3 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/60">
       <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</p>
       <p className={`text-2xl font-black ${toneClass}`}>{value}</p>
       <p className="text-xs text-slate-500 dark:text-slate-400">{sub}</p>

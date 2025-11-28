@@ -2,7 +2,6 @@
 
 import { SessionBuilder } from '@/components/SessionBuilder';
 import { Badge } from '@/components/ui/Badge';
-import { Card } from '@/components/ui/Card';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import type { TimerConfig, TimerSession } from '@/types/timer';
 
@@ -27,20 +26,18 @@ export const SessionsSection = ({
   onDuplicateSession
 }: Props) => {
   return (
-    <div className="space-y-4">
-      <Card variant="accent" className="p-6">
-        <SectionHeader
-          eyebrow="Sessions"
-          title="Composer vos sessions"
-          description="Assemblez des timers existants ou créez des segments ad hoc."
-          rightSlot={
-            <Badge variant="soft">
-              {sessions.length} session{sessions.length > 1 ? 's' : ''} définie
-              {sessions.length > 1 ? 's' : ''}
-            </Badge>
-          }
-        />
-      </Card>
+    <div className="space-y-5 lg:space-y-6">
+      <SectionHeader
+        eyebrow="Sessions"
+        title="Composer vos sessions"
+        description="Assemblez des timers existants ou créez des segments ad hoc."
+        rightSlot={
+          <Badge variant="soft">
+            {sessions.length} session{sessions.length > 1 ? 's' : ''} définie
+            {sessions.length > 1 ? 's' : ''}
+          </Badge>
+        }
+      />
 
       <SessionBuilder
         sessions={sessions}

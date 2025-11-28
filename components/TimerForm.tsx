@@ -33,7 +33,7 @@ export const TimerForm = ({ onCreate }: Props) => {
   };
 
   return (
-    <Card variant="surface" className="p-4">
+    <Card variant="muted" className="p-4 shadow-sm">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200">
