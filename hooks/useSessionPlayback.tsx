@@ -17,7 +17,10 @@ export const useSessionPlayback = (sessions: TimerSession[]) => {
   const [remainingMs, setRemainingMs] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [completed, setCompleted] = useState(false);
-  const lastTickRef = useRef<number>();
+
+  // Use endTime to track the target completion time
+  const endTimeRef = useRef<number | null>(null);
+  const rafRef = useRef<number>();
 
   const activeSession = useMemo(
     () => sessions.find((session) => session.id === activeSessionId),
@@ -59,29 +62,20 @@ export const useSessionPlayback = (sessions: TimerSession[]) => {
   const currentStep = steps[currentIndex];
   const nextStep = steps[currentIndex + 1];
 
+  // Initialize or reset when session changes
   useEffect(() => {
-    if (sessions.length === 0) {
-      setActiveSessionId(undefined);
-      return;
+    if (sessions.length > 0 && !activeSessionId) {
+      setActiveSessionId(sessions[0].id);
     }
-
-    const existing = sessions.find((session) => session.id === activeSessionId);
-    const latest = sessions[sessions.length - 1];
-
-    if (!existing) {
-      setActiveSessionId(latest.id);
-      return;
-    }
-
-    // Ensure the active session stays in sync when the order or content changes
-    setActiveSessionId(existing.id);
-  }, [activeSessionId, sessions]);
+  }, [sessions, activeSessionId]);
 
   useEffect(() => {
     setCurrentIndex(0);
     setRemainingMs(steps[0]?.durationMs ?? 0);
     setIsRunning(false);
     setCompleted(false);
+    endTimeRef.current = null;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
   }, [activeSessionId, steps]);
 
   const handleAdvance = useCallback(() => {
@@ -91,50 +85,75 @@ export const useSessionPlayback = (sessions: TimerSession[]) => {
         setIsRunning(false);
         setCompleted(true);
         setRemainingMs(0);
+        endTimeRef.current = null;
         return prev;
       }
-      setRemainingMs(steps[nextIndex].durationMs);
-      lastTickRef.current = Date.now();
+      const nextStepDuration = steps[nextIndex].durationMs;
+      setRemainingMs(nextStepDuration);
+      // Set new end time relative to NOW
+      endTimeRef.current = Date.now() + nextStepDuration;
       return nextIndex;
     });
   }, [steps]);
 
   useEffect(() => {
-    if (!isRunning || !currentStep) return undefined;
-    lastTickRef.current = Date.now();
+    if (!isRunning || !currentStep) {
+      endTimeRef.current = null;
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      return;
+    }
 
-    const interval = window.setInterval(() => {
-      setRemainingMs((prev) => {
-        const now = Date.now();
-        const delta = now - (lastTickRef.current ?? now);
-        lastTickRef.current = now;
-        const nextRemaining = prev - delta;
-        if (nextRemaining <= 0) {
-          handleAdvance();
-          return 0;
-        }
-        return nextRemaining;
-      });
-    }, 200);
+    // If starting/resuming, set the end time
+    if (endTimeRef.current === null) {
+      endTimeRef.current = Date.now() + remainingMs;
+    }
 
-    return () => window.clearInterval(interval);
-  }, [currentStep, handleAdvance, isRunning]);
+    const loop = () => {
+      if (!endTimeRef.current) return;
+
+      const now = Date.now();
+      const left = Math.max(0, endTimeRef.current - now);
+
+      setRemainingMs(left);
+
+      if (left <= 0) {
+        handleAdvance();
+        // The effect will re-run due to dependency change or handleAdvance state update
+        // But we need to make sure we don't loop infinitely in one frame
+        // handleAdvance sets a new endTimeRef, so the next loop will pick it up
+      } else {
+        rafRef.current = requestAnimationFrame(loop);
+      }
+    };
+
+    rafRef.current = requestAnimationFrame(loop);
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [isRunning, currentStep, handleAdvance]); // Removed remainingMs from dependency to avoid re-creating loop on every tick
 
   const start = () => {
     if (!currentStep) return;
     setIsRunning(true);
     setCompleted(false);
-    if (remainingMs === 0) setRemainingMs(currentStep.durationMs);
-    lastTickRef.current = Date.now();
+    if (remainingMs === 0) {
+      setRemainingMs(currentStep.durationMs);
+    }
   };
 
-  const pause = () => setIsRunning(false);
+  const pause = () => {
+    setIsRunning(false);
+    endTimeRef.current = null;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+  };
 
   const resetStep = () => {
     if (!currentStep) return;
-    setRemainingMs(currentStep.durationMs);
-    setCompleted(false);
     setIsRunning(false);
+    setRemainingMs(currentStep.durationMs);
+    endTimeRef.current = null;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
   };
 
   const stop = () => {
@@ -143,6 +162,8 @@ export const useSessionPlayback = (sessions: TimerSession[]) => {
     setRemainingMs(steps[0].durationMs);
     setIsRunning(false);
     setCompleted(false);
+    endTimeRef.current = null;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
   };
 
   const skip = () => {

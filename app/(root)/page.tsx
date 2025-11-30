@@ -54,15 +54,15 @@ export default function HomePage() {
             stats={stats}
             timers={timers}
             onSelectSection={setActiveSection}
-            onTimerStart={start}
-            onTimerPause={pause}
-            onTimerReset={reset}
-            onTimerRemove={removeTimer}
-            onTimerDuplicate={duplicate}
-            onTimerUpdate={edit}
-            onTimerLap={addLap}
-            onTimerLapLabelChange={updateLapLabel}
-            onTimerLapRemove={removeLap}
+            onStart={start}
+            onPause={pause}
+            onReset={reset}
+            onRemove={removeTimer}
+            onDuplicate={duplicate}
+            onUpdate={edit}
+            onLap={addLap}
+            onLapLabelChange={updateLapLabel}
+            onLapRemove={removeLap}
           />
         )}
 
@@ -71,15 +71,15 @@ export default function HomePage() {
             stats={{ totalLaps: stats.totalLaps }}
             timers={timers}
             onCreateTimer={(payload) => addTimer({ ...payload, sound: 'bell', note: 'Terminez en beauté !' })}
-            onTimerStart={start}
-            onTimerPause={pause}
-            onTimerReset={reset}
-            onTimerRemove={removeTimer}
-            onTimerDuplicate={duplicate}
-            onTimerUpdate={edit}
-            onTimerLap={addLap}
-            onTimerLapLabelChange={updateLapLabel}
-            onTimerLapRemove={removeLap}
+            onStart={start}
+            onPause={pause}
+            onReset={reset}
+            onRemove={removeTimer}
+            onDuplicate={duplicate}
+            onUpdate={edit}
+            onLap={addLap}
+            onLapLabelChange={updateLapLabel}
+            onLapRemove={removeLap}
           />
         )}
 

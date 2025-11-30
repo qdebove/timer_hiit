@@ -1,9 +1,10 @@
-'use client';
-
 import { TimerForm } from '@/components/TimerForm';
 import { TimerLibrary } from '@/components/timers/TimerLibrary';
+import { Modal } from '@/components/ui/Modal';
+import { PillButton } from '@/components/ui/PillButton';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import type { TimerConfig } from '@/types/timer';
+import { useState } from 'react';
 
 interface Stats {
   totalLaps: number;
@@ -42,24 +43,51 @@ export const TimersSection = ({
   onCreateTimer,
   ...timerHandlers
 }: Props) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleCreate = (payload: any) => {
+    onCreateTimer(payload);
+    setIsModalOpen(false);
+  };
+
   return (
     <section className="space-y-5 lg:space-y-6">
-      <SectionHeader
-        eyebrow="Timers"
-        title="Créer et gérer vos timers"
-        description="Choisissez un compte à rebours ou un chronomètre, prévisualisez, puis enregistrez."
-        rightSlot={<ChronoTip />}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <SectionHeader
+          eyebrow="Timers"
+          title="Créer et gérer vos timers"
+          description="Gérez votre bibliothèque de chronomètres et comptes à rebours."
+        />
+        <div className="flex shrink-0 items-center gap-3">
+          <PillButton onClick={() => setIsModalOpen(true)}>
+            + Nouveau timer
+          </PillButton>
+        </div>
+      </div>
+
+      {/* Tip visible on desktop if needed, or integrated elsewhere. For now, keeping it simple or removing if clutter. 
+          Let's keep it but maybe below header or as a side note if layout permits. 
+          Actually, let's put it in the list or just remove it to clean up as requested. 
+          User asked for "better UX" and "make it easy". Less clutter is better. 
+          I will remove the ChronoTip from the main view to simplify.
+      */}
+
+      <TimerLibrary
+        timers={timers}
+        stats={{ totalLaps: stats.totalLaps }}
+        {...timerHandlers}
       />
 
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <TimerForm onCreate={onCreateTimer} />
-
-        <TimerLibrary
-          timers={timers}
-          stats={{ totalLaps: stats.totalLaps }}
-          {...timerHandlers}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Nouveau timer"
+      >
+        <TimerForm
+          onCreate={handleCreate}
+          onCancel={() => setIsModalOpen(false)}
         />
-      </div>
+      </Modal>
     </section>
   );
 };
